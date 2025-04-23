@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF85A1;
+            --primary-light: #FFA5C0;
+            --secondary: #FFF0F3;
+            --accent: #96CDFF;
+            --text: #5D5D81;
+            --border: #FFD0E0;
+            --hover: #FFF9FB;
+            --shadow: rgba(255, 133, 161, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #FFFBFD;
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed var(--primary);
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        h1::before, h1::after {
+            content: "♡";
+            display: inline-block;
+            margin: 0 10px;
+            color: var(--primary-light);
+        }
+
+        .search-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 20px;
+            border: 2px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent), var(--primary-light));
+            border-radius: 3px 3px 0 0;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .filter-group .clear-input {
+            position: absolute;
+            right: 15px;
+            bottom: 12px;
+            cursor: pointer;
+            color: var(--primary);
+            background: none;
+            border: none;
+            display: none;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+
+        .filter-group .clear-input:hover {
+            color: var(--primary-light);
+        }
+
+        .filter-group .clear-input svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        label svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+            width: 100%;
+            background-color: var(--hover);
+            padding-right: 40px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--shadow);
+            background-color: white;
+        }
+
+        .search-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-size: 14px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .search-status .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .search-status.searching .spinner {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px var(--shadow);
+            border: 2px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px 18px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        tr:last-child td:first-child {
+            border-bottom-left-radius: 12px;
+        }
+
+        tr:last-child td:last-child {
+            border-bottom-right-radius: 12px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--secondary);
+        }
+
+        tr:hover {
+            background-color: var(--hover);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        select {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background-color: var(--hover);
+            color: var(--text);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FF85A1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+            width: 100%;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--shadow);
+            background-color: white;
+        }
+
+        select:hover {
+            border-color: var(--primary-light);
+        }
+
+        /* Job-specific styling */
+        td:nth-child(5) {
+            font-weight: 600;
+        }
+
+        td:nth-child(5)[data-job="AD_PRES"] {
+            color: #FF6B6B;
+        }
+
+        td:nth-child(5)[data-job="AD_VP"] {
+            color: #4ECDC4;
+        }
+
+        td:nth-child(5)[data-job="IT_PROG"] {
+            color: #9D65C9;
+        }
+
+        td:nth-child(5)[data-job="ST_MAN"] {
+            color: #FF9A76;
+        }
+
+        td:nth-child(5)[data-job="MK_MAN"] {
+            color: #45B7D1;
+        }
+
+        /* Salary styling */
+        td:nth-child(6) {
+            font-weight: 600;
+            color: #5D5D81;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 500px) {
+            .filter-options {
+                width: 100%;
+            }
+
+            .filter-options select {
+                max-width: none;
+            }
+
+            form {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h1::before, h1::after {
+                display: none;
+            }
+
+            .search-container {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Employee List</h1>
+
+<div class="search-container">
+    <form id="searchForm" method="get" action="/employee">
+        <div class="filter-group">
+            <label for="email">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Filter by Email
+            </label>
+            <input type="text" id="email" name="email" th:value="${selectedEmail}" placeholder="Enter email address...">
+            <button type="button" class="clear-input" title="Clear">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="filter-group">
+            <label for="jobId">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                Filter by Job
+            </label>
+            <select id="jobId" name="jobId">
+                <option value="" th:selected="${selectedJobId == ''}">All Jobs</option>
+                <option value="AD_PRES" th:selected="${selectedJobId == 'AD_PRES'}" th:value="'AD_PRES'">AD_PRES</option>
+                <option value="AD_VP" th:selected="${selectedJobId == 'AD_VP'}" th:value="'AD_VP'">AD_VP</option>
+                <option value="IT_PROG" th:selected="${selectedJobId == 'IT_PROG'}" th:value="'IT_PROG'">IT_PROG</option>
+                <option value="ST_MAN" th:selected="${selectedJobId == 'ST_MAN'}" th:value="'ST_MAN'">ST_MAN</option>
+                <option value="MK_MAN" th:selected="${selectedJobId == 'MK_MAN'}" th:value="'MK_MAN'">MK_MAN</option>
+            </select>
+        </div>
+    </form>
+
+    <div class="search-status">
+        <div class="spinner"></div>
+        <span class="status-text">Filtering results...</span>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Hire Date</th>
+            <th>Job</th>
+            <th>Salary</th>
+            <th>Manager</th>
+            <th>Department</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employee}">
+            <td th:text="${emp.id}"></td>
+            <td th:text="${emp.firstName + ' ' + emp.lastName}"></td>
+            <td th:text="${emp.email}"></td>
+            <td th:text="${#dates.format(emp.hireDate, 'yyyy-MM-dd')}"></td>
+            <td th:text="${emp.jobId}" th:attr="data-job=${emp.jobId}"></td>
+            <td th:text="${emp.salary}"></td>
+            <td th:text="${emp.managerId}"></td>
+            <td th:text="${emp.departmentId}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('searchForm');
+        const emailInput = document.getElementById('email');
+        const jobSelect = document.getElementById('jobId');
+        const clearButton = document.querySelector('.clear-input');
+        const searchStatus = document.querySelector('.search-status');
+
+        let debounceTimer;
+
+        // Show clear button when input has text
+        emailInput.addEventListener('input', function() {
+            clearButton.style.display = this.value ? 'block' : 'none';
+
+            // Debounce the search to avoid too many requests while typing
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                submitSearch();
+            }, 500); // Wait 500ms after user stops typing
+        });
+
+        // Clear input when clear button is clicked
+        clearButton.addEventListener('click', function() {
+            emailInput.value = '';
+            clearButton.style.display = 'none';
+            submitSearch();
+        });
+
+        // Initialize clear button visibility
+        if (emailInput.value) {
+            clearButton.style.display = 'block';
+        }
+
+        // Submit form when job selection changes
+        jobSelect.addEventListener('change', function() {
+            submitSearch();
+        });
+
+        function submitSearch() {
+            // Show searching status
+            searchStatus.classList.add('searching');
+
+            // Submit the form
+            searchForm.submit();
+        }
+
+        // Hide search status initially
+        searchStatus.style.display = 'none';
+    });
+</script>
+</body>
+</html>
