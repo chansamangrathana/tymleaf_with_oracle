@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface EmployeeService {
     List<Employee> getEmployeesByEmailAndJobId(String email, String jobId);
+    void saveEmployee(Employee employee);
+
 }

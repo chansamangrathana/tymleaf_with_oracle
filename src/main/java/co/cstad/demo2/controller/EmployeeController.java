@@ -5,9 +5,7 @@ import co.cstad.demo2.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,4 +26,24 @@ public class EmployeeController {
         model.addAttribute("selectedJobId", jobId);
         return "employee";
     }
+
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("employee", new Employee());
+        return "employee-form";
+    }
+
+    @PostMapping("/save")
+    public String saveEmployee(@ModelAttribute("employee") Employee employee) {
+        employeeService.saveEmployee(employee);
+        return "redirect:/employee";  // Redirect to the employee list page
+    }
+    @PutMapping("/edit")
+    public String editEmployee(@ModelAttribute("employee") Employee employee) {
+        employeeService.saveEmployee(employee);
+        return "redirect:/employee";
+    }
+
+
 }
+

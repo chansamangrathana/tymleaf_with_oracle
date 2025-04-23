@@ -51,6 +51,15 @@ public class EmployeeRepository {
                 .filter(emp -> email.equalsIgnoreCase(emp.getEmail()))
                 .collect(Collectors.toList());
     }
+    public void save(Employee employee) {
+        if (employee.getId() == null) {
+            String sql = "INSERT INTO EMPLOYEE_LIST (first_name, last_name, email, hire_date, job_id, salary, manager_id, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, employee.getFirstName(), employee.getLastName(), employee.getEmail(), employee.getHireDate(), employee.getJobId(), employee.getSalary(), employee.getManagerId(), employee.getDepartmentId());
+        } else {
+            String sql = "UPDATE EMPLOYEE_LIST SET first_name = ?, last_name = ?, email = ?, hire_date = ?, job_id = ?, salary = ?, manager_id = ?, department_id = ? WHERE employee_id = ?";
+            jdbcTemplate.update(sql, employee.getFirstName(), employee.getLastName(), employee.getEmail(), employee.getHireDate(), employee.getJobId(), employee.getSalary(), employee.getManagerId(), employee.getDepartmentId(), employee.getId());
+        }
+    }
     private static class EmployeeRowMapper implements RowMapper<Employee> {
         @Override
         public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -16,4 +16,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<Employee> getEmployeesByEmailAndJobId(String email, String jobId) {
         return employeeRepository.findByEmailAndJobId(email, jobId);
     }
+
+    @Override
+    public void saveEmployee(Employee employee) {
+        employeeRepository.save(employee);
+    }
 }
